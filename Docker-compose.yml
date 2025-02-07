@@ -1,0 +1,40 @@
+name: microsservico-autenticacao
+
+services:
+  api-autenticacao:
+    image: api-autenticacao-dev
+    build:
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src
+    depends_on:
+      postgres-autenticacao:
+        condition: service_healthy
+  
+  postgres-autenticacao:
+    image: postgres:17
+    restart: always
+    volumes:
+      - postgresauth-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    secrets:
+      - senha-postgres
+    user: postgres
+    environment:
+      POSTGRES_PASSWORD_FILE: "/run/secrets/senha-postgres"
+      POSTGRES_DB: "autenticacao"
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgresauth-data:
+
+secrets:
+  senha-postgres:
+    file: ./senhapostgres.txt
