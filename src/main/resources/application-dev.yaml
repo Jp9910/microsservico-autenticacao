@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: api
+  flyway:
+    locations: classpath:db/migrations/
+  datasource:
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:senha}
+    url: jdbc:postgresql://${SPRING_DATASOURCE_URL:localhost:5432}/autenticacao
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        formatSql: true

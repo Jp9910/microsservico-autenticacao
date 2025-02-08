@@ -1,10 +1,15 @@
 name: microsservico-autenticacao
-
+# https://stackoverflow.com/questions/71855294/best-practices-for-storing-passwords-when-using-spring-boot
 services:
   api-autenticacao:
     image: api-autenticacao-dev
     build:
       dockerfile: ./Dockerfile.dev
+    environment:
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: "/run/secrets/senha-postgres"
+      SPRING_DATASOURCE_URL: "postgres-autenticacao:5432"
+      SPRING_ACTIVE_PROFILE: dev
     ports:
       - "8080:8080"
     volumes:

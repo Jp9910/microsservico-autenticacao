@@ -11,6 +11,7 @@ public class ApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ApiApplication.class, args);
 	}
+	// Ler sobre beans no spring: https://www.baeldung.com/spring-bean
 	
 	// O projeto já tem o servidor de aplicação Tomcat como dependência - herdada das dependências do spring boot (tag parent no pom.xml)
 	// https://code.visualstudio.com/docs/java/java-spring-boot

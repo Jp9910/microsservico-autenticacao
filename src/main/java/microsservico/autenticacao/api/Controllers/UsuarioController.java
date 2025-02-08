@@ -1,12 +1,12 @@
 package microsservico.autenticacao.api.Controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import microsservico.autenticacao.api.Models.Usuario;
 import microsservico.autenticacao.api.Models.CreateUsuarioDTO;
+import microsservico.autenticacao.api.Models.LoginDTO;
 import microsservico.autenticacao.api.Models.ReadUsuarioDTO;
 import microsservico.autenticacao.api.Models.UpdateUsuarioDTO;
 import microsservico.autenticacao.api.Models.UsuarioRepository;
@@ -35,6 +36,8 @@ public class UsuarioController {
     @Autowired
     private UsuarioRepository repo;
     private BCryptPasswordEncoder encoder;
+    @Autowired
+    Environment env;
     
     public UsuarioController () {
         // https://argon2.online/
@@ -95,6 +98,9 @@ public class UsuarioController {
     @Transactional
     public void cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createAdminDto) {
         // TODO: Proteger o endpoint para evitar que qualquer um consiga cadastrar um admin
+        // https://spring.io/guides/gs/securing-web
+        // https://www.javaguides.net/2024/01/spring-boot-security-jwt-tutorial.html
+        // https://www.javaguides.net/2018/10/user-registration-module-using-springboot-springmvc-springsecurity-hibernate5-thymeleaf-mysql.html
         System.out.println("Criar usuario admin");
         String salt = this.generateRandomString();
         String digest = this.encryptPassword(createAdminDto.senha(), salt);
@@ -105,7 +111,9 @@ public class UsuarioController {
     
 
     @PostMapping("/login") // rota /usuarios/login
-    public String login(@RequestParam String usuario, @RequestParam String senha) {
+    public String login(@RequestBody LoginDTO login) {
+        System.out.println(login.email());
+        System.out.println(login.senha());
         return String.format("testando login");
     }
 
@@ -139,6 +147,12 @@ public class UsuarioController {
         return generatedString;
     }
     
+    private void verProfileAtivo() {
+        String[] profiles = env.getActiveProfiles();
+        for (String st : profiles) {
+            System.out.println(st);
+        }
+    }
 }
 
 // Sobre DAOs e Repositories:

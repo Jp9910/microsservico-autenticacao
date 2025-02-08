@@ -1,0 +1,6 @@
+spring:
+  profiles:
+    active: ${SPRING_ACTIVE_PROFILE:dev}
+
+# Configurações específicas de profiles:
+# https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config.files.profile-specific
