@@ -1,4 +1,5 @@
 spring.application.name=api
+spring.flyway.locations=classpath:db/migrations/
 spring.datasource.url=jdbc:postgresql://localhost:5432/autenticacao
 spring.datasource.username=username1
 spring.datasource.password=password1

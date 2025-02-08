@@ -12,4 +12,14 @@ public class ApiApplication {
 	
 	// O projeto já tem o servidor de aplicação Tomcat como dependência - herdada das dependências do spring boot (tag parent no pom.xml)
 	// https://code.visualstudio.com/docs/java/java-spring-boot
+	
+	
+	// Reparar migrations flyway
+	// @Bean
+	// public FlywayMigrationStrategy cleanMigrateStrategy() {
+	// 	return flyway -> {
+	// 		flyway.repair();
+	// 		flyway.migrate();
+	// 	};
+	// }
 }
