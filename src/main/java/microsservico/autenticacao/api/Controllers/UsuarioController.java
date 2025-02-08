@@ -1,23 +1,34 @@
 package microsservico.autenticacao.api.Controllers;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import java.util.Random;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.config.EnableSpringDataWebSupport;
+import org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import microsservico.autenticacao.api.Models.Usuario;
-import microsservico.autenticacao.api.Models.UsuarioDTO;
+import microsservico.autenticacao.api.Models.CreateUsuarioDTO;
+import microsservico.autenticacao.api.Models.ReadUsuarioDTO;
+import microsservico.autenticacao.api.Models.UpdateUsuarioDTO;
 import microsservico.autenticacao.api.Models.UsuarioRepository;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
 
 @RestController
 @RequestMapping("usuarios")
+@EnableSpringDataWebSupport(pageSerializationMode = PageSerializationMode.VIA_DTO)
 public class UsuarioController {
 
     // @Autowired // Com isso o spring passará esse atributo assim que instanciar o controller (injeção de dependência feita pelo framework)
@@ -32,38 +43,84 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public String getUsuarios() {
-        System.out.println("Testando 1234");
-        System.out.println(this.encoder.encode("asdf"));
-        String salt = this.generateRandomString();
-        System.out.println("salt: ".concat(salt));
-        return String.format("testando %d", 1300);
+    public Page<ReadUsuarioDTO> getUsuarios(@PageableDefault(size = 10, sort = {"isAdmin"}, direction = Direction.DESC) Pageable paginacao) {
+        return repo.findAll(paginacao).map(ReadUsuarioDTO::new);
+    }
+
+    @GetMapping("ativos")
+    public Page<ReadUsuarioDTO> getUsuariosAtivos(@PageableDefault(size = 10, sort = {"isAdmin"}, direction = Direction.DESC) Pageable paginacao) {
+        // Da pra criar uma assinatura de método seguindo um padrão de nomeclatura para que o spring data
+        // identifique que se trata de uma query e o sql já vem implementado
+        return repo.findAllByIsAtivoTrue(paginacao).map(ReadUsuarioDTO::new);
     }
     
 
-    // @GetMapping
-    // public void getUsuarioId(@RequestParam String id) {
-    //     System.out.println(id);
-    // }
+    @GetMapping("{id}")
+    public ReadUsuarioDTO getUsuarioId(@PathVariable Long id) {
+        Usuario user = repo.getReferenceById(id);
+        return new ReadUsuarioDTO(user);
+    }
+
+    @PutMapping("{id}")
+    @Transactional
+    public void putMethodName(@PathVariable Long id, @RequestBody UpdateUsuarioDTO updateUsuarioDto) {
+        System.out.println("teste put");
+        Usuario user = repo.getReferenceById(id);
+        if (updateUsuarioDto.nome() != null && !user.getNome().equals(updateUsuarioDto.nome())) {
+            user.setNome(updateUsuarioDto.nome());
+        }
+        if (updateUsuarioDto.senha() != null) {
+            String newSalt = this.generateRandomString();
+            String digest = this.encryptPassword(updateUsuarioDto.senha(), newSalt);
+            user.setSalt(newSalt);
+            user.setSenha(digest);
+        }
+        System.out.println(user.toString());
+    }
     
     
-    @PostMapping
+    @PostMapping("/cadastrar")
     @Transactional // Especificar que isso é uma transação (operação atômica)
-    public void cadastrar(@RequestBody UsuarioDTO novoUsuario) {
-        System.out.println(novoUsuario);
+    public void cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto) {
+        //@valid indica que o campo precisa ser validado de acordo com as anotações na classe que está sendo validada
+        System.out.println(createUsuarioDto);
         String salt = this.generateRandomString();
-        System.out.println("salt: ".concat(salt));
-        String digest = encoder.encode(novoUsuario.senha().concat(salt));
-        System.out.println("hash: ".concat(digest));
-        Usuario user = new Usuario(novoUsuario, digest, salt);
-        System.out.println("User: ");
+        String digest = this.encryptPassword(createUsuarioDto.senha(), salt);
+        Usuario user = new Usuario(createUsuarioDto, digest, salt, false);
         System.out.println(user.toString());
         repo.save(user);
     }
 
+    @PostMapping("/cadastraradmin")
+    @Transactional
+    public void cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createAdminDto) {
+        // TODO: Proteger o endpoint para evitar que qualquer um consiga cadastrar um admin
+        System.out.println("Criar usuario admin");
+        String salt = this.generateRandomString();
+        String digest = this.encryptPassword(createAdminDto.senha(), salt);
+        Usuario user = new Usuario(createAdminDto, digest, salt, true);
+        System.out.println(user.toString());
+        repo.save(user);
+    }
+    
+
     @PostMapping("/login") // rota /usuarios/login
     public String login(@RequestParam String usuario, @RequestParam String senha) {
         return String.format("testando login");
+    }
+
+    @DeleteMapping("{id}")
+    @Transactional
+    public void removerUsuario(@PathVariable Long id) {
+        // repo.deleteById(id); // Isso seria um hard delete
+        Usuario user = repo.getReferenceById(id);
+        user.setIsAtivo(false);
+    }
+
+    private String encryptPassword(String senha, String salt) {
+        String digest = this.encoder.encode(senha.concat(salt));
+        System.out.println("hash: ".concat(digest));
+        return digest;
     }
 
     private String generateRandomString() {
@@ -78,7 +135,7 @@ public class UsuarioController {
             .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString();
 
-        System.out.println(generatedString);
+        System.out.println("Salt gerado: ".concat(generatedString));
         return generatedString;
     }
     
