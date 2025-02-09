@@ -5,6 +5,6 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Profile("dev")
-public class ConfigDev {
+public class ConfigDev { // implement datasourceconfig class and override methods
     
 }

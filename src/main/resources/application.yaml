@@ -1,6 +1,12 @@
 spring:
   profiles:
     active: ${SPRING_ACTIVE_PROFILE:dev}
+server:
+  error:
+    include-stacktrace: never
 
+# O application.yaml é sempre carregado primeiro, e em seguida o application-{perfil}.yaml do perfil que está sendo executado,
+# com as variaveis do perfil sobrescrevendo as do application.yaml
+#
 # Configurações específicas de profiles:
 # https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config.files.profile-specific

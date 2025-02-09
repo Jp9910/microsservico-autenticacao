@@ -1,9 +1,13 @@
 package microsservico.autenticacao.api.Controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
+
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.net.URI;
 import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -13,6 +17,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +33,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 
 @RestController
-@RequestMapping("usuarios")
+@RequestMapping("/usuarios")
 @EnableSpringDataWebSupport(pageSerializationMode = PageSerializationMode.VIA_DTO)
 public class UsuarioController {
 
@@ -46,27 +51,30 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public Page<ReadUsuarioDTO> getUsuarios(@PageableDefault(size = 10, sort = {"isAdmin"}, direction = Direction.DESC) Pageable paginacao) {
-        return repo.findAll(paginacao).map(ReadUsuarioDTO::new);
+    public ResponseEntity<Page<ReadUsuarioDTO>> getUsuarios(@PageableDefault(size = 10, sort = {"isAdmin"}, direction = Direction.DESC) Pageable paginacao) {
+        Page<ReadUsuarioDTO> pagina = repo.findAll(paginacao).map(ReadUsuarioDTO::new);
+        return ResponseEntity.ok(pagina);
     }
 
-    @GetMapping("ativos")
-    public Page<ReadUsuarioDTO> getUsuariosAtivos(@PageableDefault(size = 10, sort = {"isAdmin"}, direction = Direction.DESC) Pageable paginacao) {
+    @GetMapping("/ativos")
+    public ResponseEntity<Page<ReadUsuarioDTO>> getUsuariosAtivos(@PageableDefault(size = 10, sort = {"isAdmin"}, direction = Direction.DESC) Pageable paginacao) {
         // Da pra criar uma assinatura de método seguindo um padrão de nomeclatura para que o spring data
         // identifique que se trata de uma query e o sql já vem implementado
-        return repo.findAllByIsAtivoTrue(paginacao).map(ReadUsuarioDTO::new);
+        Page<ReadUsuarioDTO> pagina = repo.findAllByIsAtivoTrue(paginacao).map(ReadUsuarioDTO::new);
+        return ResponseEntity.ok(pagina);
     }
     
 
-    @GetMapping("{id}")
-    public ReadUsuarioDTO getUsuarioId(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ReadUsuarioDTO> getUsuarioId(@PathVariable Long id) {
         Usuario user = repo.getReferenceById(id);
-        return new ReadUsuarioDTO(user);
+        ReadUsuarioDTO userDto = new ReadUsuarioDTO(user);
+        return ResponseEntity.ok(userDto);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     @Transactional
-    public void putMethodName(@PathVariable Long id, @RequestBody UpdateUsuarioDTO updateUsuarioDto) {
+    public ResponseEntity<ReadUsuarioDTO> atualizarUsuario(@PathVariable Long id, @RequestBody UpdateUsuarioDTO updateUsuarioDto) {
         System.out.println("teste put");
         Usuario user = repo.getReferenceById(id);
         if (updateUsuarioDto.nome() != null && !user.getNome().equals(updateUsuarioDto.nome())) {
@@ -78,51 +86,60 @@ public class UsuarioController {
             user.setSalt(newSalt);
             user.setSenha(digest);
         }
-        System.out.println(user.toString());
+        return ResponseEntity.ok(new ReadUsuarioDTO(user));
     }
     
     
     @PostMapping("/cadastrar")
     @Transactional // Especificar que isso é uma transação (operação atômica)
-    public void cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto) {
+    public ResponseEntity<ReadUsuarioDTO> cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
         //@valid indica que o campo precisa ser validado de acordo com as anotações na classe que está sendo validada
-        System.out.println(createUsuarioDto);
         String salt = this.generateRandomString();
         String digest = this.encryptPassword(createUsuarioDto.senha(), salt);
         Usuario user = new Usuario(createUsuarioDto, digest, salt, false);
-        System.out.println(user.toString());
         repo.save(user);
+
+        var uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(user.getId()).toUri();
+        ReadUsuarioDTO dto = new ReadUsuarioDTO(user);
+        return ResponseEntity.created(uri).body(dto);
     }
 
+    // TODO: Proteger o endpoint para evitar que qualquer um consiga cadastrar um admin
+    // https://spring.io/guides/gs/securing-web
+    // https://www.javaguides.net/2024/01/spring-boot-security-jwt-tutorial.html
+    // https://www.javaguides.net/2018/10/user-registration-module-using-springboot-springmvc-springsecurity-hibernate5-thymeleaf-mysql.html
     @PostMapping("/cadastraradmin")
     @Transactional
-    public void cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createAdminDto) {
-        // TODO: Proteger o endpoint para evitar que qualquer um consiga cadastrar um admin
-        // https://spring.io/guides/gs/securing-web
-        // https://www.javaguides.net/2024/01/spring-boot-security-jwt-tutorial.html
-        // https://www.javaguides.net/2018/10/user-registration-module-using-springboot-springmvc-springsecurity-hibernate5-thymeleaf-mysql.html
-        System.out.println("Criar usuario admin");
+    public ResponseEntity<ReadUsuarioDTO> cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
         String salt = this.generateRandomString();
-        String digest = this.encryptPassword(createAdminDto.senha(), salt);
-        Usuario user = new Usuario(createAdminDto, digest, salt, true);
-        System.out.println(user.toString());
+        String digest = this.encryptPassword(createUsuarioDto.senha(), salt);
+        Usuario user = new Usuario(createUsuarioDto, digest, salt, true);
         repo.save(user);
+
+        URI uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(user.getId()).toUri();
+        ReadUsuarioDTO dto = new ReadUsuarioDTO(user);
+        return ResponseEntity.created(uri).body(dto);
     }
     
 
     @PostMapping("/login") // rota /usuarios/login
-    public String login(@RequestBody LoginDTO login) {
+    public ResponseEntity<URI> login(@RequestBody LoginDTO login, UriComponentsBuilder uriBuilder) {
+        
+        // TODO: Criar sessão
         System.out.println(login.email());
         System.out.println(login.senha());
-        return String.format("testando login");
+
+        URI uri = uriBuilder.path("/sessao/{id}").buildAndExpand("1").toUri();
+        return ResponseEntity.created(uri).build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     @Transactional
-    public void removerUsuario(@PathVariable Long id) {
+    public ResponseEntity<Object> removerUsuario(@PathVariable Long id) {
         // repo.deleteById(id); // Isso seria um hard delete
         Usuario user = repo.getReferenceById(id);
         user.setIsAtivo(false);
+        return ResponseEntity.noContent().build();
     }
 
     private String encryptPassword(String senha, String salt) {
