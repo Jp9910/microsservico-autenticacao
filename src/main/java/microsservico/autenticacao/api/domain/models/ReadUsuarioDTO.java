@@ -1,4 +1,4 @@
-package microsservico.autenticacao.api.Models;
+package microsservico.autenticacao.api.domain.models;
 
 public record ReadUsuarioDTO (
     Long id,

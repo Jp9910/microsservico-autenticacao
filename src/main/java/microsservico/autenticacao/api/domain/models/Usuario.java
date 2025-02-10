@@ -1,4 +1,4 @@
-package microsservico.autenticacao.api.Models;
+package microsservico.autenticacao.api.domain.models;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

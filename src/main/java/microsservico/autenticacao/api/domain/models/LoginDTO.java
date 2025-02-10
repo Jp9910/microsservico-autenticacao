@@ -1,4 +1,4 @@
-package microsservico.autenticacao.api.Models;
+package microsservico.autenticacao.api.domain.models;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

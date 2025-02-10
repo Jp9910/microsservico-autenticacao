@@ -1,8 +1,10 @@
-package microsservico.autenticacao.api.Models;
+package microsservico.autenticacao.api.domain;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import microsservico.autenticacao.api.domain.models.Usuario;
 
 // O JpaRepository faz todo o mapeamento dos dados do banco para o Model (usando o padrão Repository)
 // JpaRepository<Tipo da entidade que esse repositório vai conter, tipo do atributo da chave primária>
