@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+
 import microsservico.autenticacao.api.domain.models.Usuario;
 
 @Service
@@ -16,6 +18,7 @@ public class TokenService {
     @Value("${api.security.senha-assinatura-token}") // Pegar o valor da variável do application.yaml
     private String senhaAssinatura;
 
+    // Chamado no AutenticacaoController
     public String gerarTokenJWT(Usuario usuario) { 
         try {
             var algoritmo = Algorithm.HMAC256(senhaAssinatura);
@@ -28,6 +31,20 @@ public class TokenService {
         } catch (JWTCreationException exception){
             throw new RuntimeException("erro ao gerrar token jwt", exception);
         }		
+    }
+
+    // Chamado no filtro SecurityFilter para verificar se a requisição que está chegando está com token válido e pegar o email de quem gerou
+    public String validarTokenEPegarEmail(String tokenJWT) {
+        try {
+            var algoritmo = Algorithm.HMAC256(senhaAssinatura);
+            return JWT.require(algoritmo)
+                            .withIssuer("API Microsservico.Autenticacao") // Verificar os dados da variável "issuer" do token
+                            .build() // pegar o verificador de token (coisa do spring)
+                            .verify(tokenJWT) // verificar se está válido
+                            .getSubject(); // pegar o email de quem gerou o token
+        } catch (JWTVerificationException exception) {
+            throw new RuntimeException("Token JWT inválido ou expirado!");
+        }
     }
 
     private Instant dataExpiracao() {
