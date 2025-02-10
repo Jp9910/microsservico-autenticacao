@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import microsservico.autenticacao.api.domain.UsuarioRepository;
 import microsservico.autenticacao.api.domain.models.CreateUsuarioDTO;
-import microsservico.autenticacao.api.domain.models.LoginDTO;
 import microsservico.autenticacao.api.domain.models.ReadUsuarioDTO;
 import microsservico.autenticacao.api.domain.models.UpdateUsuarioDTO;
 import microsservico.autenticacao.api.domain.models.Usuario;
@@ -83,9 +82,7 @@ public class UsuarioController {
             user.setNome(updateUsuarioDto.nome());
         }
         if (updateUsuarioDto.senha() != null) {
-            String newSalt = this.generateRandomString();
-            String digest = this.encryptPassword(updateUsuarioDto.senha(), newSalt);
-            user.setSalt(newSalt);
+            String digest = this.encryptPassword(updateUsuarioDto.senha());
             user.setSenha(digest);
         }
         return ResponseEntity.ok(new ReadUsuarioDTO(user));
@@ -96,9 +93,8 @@ public class UsuarioController {
     @Transactional // Especificar que isso é uma transação (operação atômica)
     public ResponseEntity<ReadUsuarioDTO> cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
         //@valid indica que o campo precisa ser validado de acordo com as anotações na classe que está sendo validada
-        String salt = this.generateRandomString();
-        String digest = this.encryptPassword(createUsuarioDto.senha(), salt);
-        Usuario user = new Usuario(createUsuarioDto, digest, salt, false);
+        String digest = this.encryptPassword(createUsuarioDto.senha());
+        Usuario user = new Usuario(createUsuarioDto, digest, false);
         repo.save(user);
 
         var uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(user.getId()).toUri();
@@ -113,26 +109,13 @@ public class UsuarioController {
     @PostMapping("/cadastraradmin")
     @Transactional
     public ResponseEntity<ReadUsuarioDTO> cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
-        String salt = this.generateRandomString();
-        String digest = this.encryptPassword(createUsuarioDto.senha(), salt);
-        Usuario user = new Usuario(createUsuarioDto, digest, salt, true);
+        String digest = this.encryptPassword(createUsuarioDto.senha());
+        Usuario user = new Usuario(createUsuarioDto, digest, true);
         repo.save(user);
 
         URI uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(user.getId()).toUri();
         ReadUsuarioDTO dto = new ReadUsuarioDTO(user);
         return ResponseEntity.created(uri).body(dto);
-    }
-    
-
-    @PostMapping("/login") // rota /usuarios/login
-    public ResponseEntity<URI> login(@RequestBody LoginDTO login, UriComponentsBuilder uriBuilder) {
-        
-        // TODO: Criar sessão
-        System.out.println(login.email());
-        System.out.println(login.senha());
-
-        URI uri = uriBuilder.path("/sessao/{id}").buildAndExpand("1").toUri();
-        return ResponseEntity.created(uri).build();
     }
 
     @DeleteMapping("/{id}")
@@ -144,34 +127,34 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    private String encryptPassword(String senha, String salt) {
-        String digest = this.encoder.encode(senha.concat(salt));
+    private String encryptPassword(String senha) {
+        String digest = this.encoder.encode(senha);
         System.out.println("hash: ".concat(digest));
         return digest;
     }
 
-    private String generateRandomString() {
-        int leftLimit = 48; // numeral '0'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 16;
-        Random random = new Random();
+    // private String generateRandomString() {
+    //     int leftLimit = 48; // numeral '0'
+    //     int rightLimit = 122; // letter 'z'
+    //     int targetStringLength = 16;
+    //     Random random = new Random();
 
-        String generatedString = random.ints(leftLimit, rightLimit + 1)
-            .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-            .limit(targetStringLength)
-            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-            .toString();
+    //     String generatedString = random.ints(leftLimit, rightLimit + 1)
+    //         .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+    //         .limit(targetStringLength)
+    //         .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+    //         .toString();
 
-        System.out.println("Salt gerado: ".concat(generatedString));
-        return generatedString;
-    }
+    //     System.out.println("Salt gerado: ".concat(generatedString));
+    //     return generatedString;
+    // }
     
-    private void verProfileAtivo() {
-        String[] profiles = env.getActiveProfiles();
-        for (String st : profiles) {
-            System.out.println(st);
-        }
-    }
+    // private void verProfileAtivo() {
+    //     String[] profiles = env.getActiveProfiles();
+    //     for (String st : profiles) {
+    //         System.out.println(st);
+    //     }
+    // }
 }
 
 // Sobre DAOs e Repositories:

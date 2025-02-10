@@ -2,8 +2,8 @@ package microsservico.autenticacao.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-// import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
-// import org.springframework.context.annotation.Bean;
+import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
+import org.springframework.context.annotation.Bean;
 
 /*
 @SpringBootApplication is a convenience annotation that adds all of the following:
@@ -25,7 +25,7 @@ public class ApiApplication {
 	// https://code.visualstudio.com/docs/java/java-spring-boot
 	
 	
-	// // Reparar migrations flyway
+	// Reparar migrations flyway
 	// @Bean
 	// public FlywayMigrationStrategy cleanMigrateStrategy() {
 	// 	return flyway -> {
