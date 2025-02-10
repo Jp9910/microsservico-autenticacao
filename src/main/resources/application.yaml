@@ -10,3 +10,6 @@ server:
 #
 # Configurações específicas de profiles:
 # https://docs.spring.io/spring-boot/reference/features/external-config.html#features.external-config.files.profile-specific
+#
+# Configurações comuns:
+# https://docs.spring.io/spring-boot/appendix/application-properties/index.html

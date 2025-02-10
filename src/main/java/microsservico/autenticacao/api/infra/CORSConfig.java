@@ -1,4 +1,4 @@
-package microsservico.autenticacao.api.config;
+package microsservico.autenticacao.api.infra;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
