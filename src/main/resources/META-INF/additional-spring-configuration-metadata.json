@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "api.security.senha-assinatura-token",
+  "type": "java.lang.String",
+  "description": "Senha para assinatura do token JWT na API"
+}]}
