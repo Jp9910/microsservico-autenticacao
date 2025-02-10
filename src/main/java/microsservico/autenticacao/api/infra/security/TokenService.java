@@ -1,4 +1,4 @@
-package microsservico.autenticacao.api.infra;
+package microsservico.autenticacao.api.infra.security;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;

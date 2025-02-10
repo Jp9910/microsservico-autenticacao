@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import microsservico.autenticacao.api.domain.models.LoginDTO;
 import microsservico.autenticacao.api.domain.models.Usuario;
-import microsservico.autenticacao.api.infra.TokenService;
+import microsservico.autenticacao.api.infra.security.TokenService;
 
 @RestController
 @RequestMapping("/auth")

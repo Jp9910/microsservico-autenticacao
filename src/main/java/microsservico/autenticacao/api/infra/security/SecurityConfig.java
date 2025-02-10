@@ -1,4 +1,4 @@
-package microsservico.autenticacao.api.infra;
+package microsservico.autenticacao.api.infra.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
