@@ -18,12 +18,14 @@ public class TokenService {
     @Value("${api.security.senha-assinatura-token}") // Pegar o valor da variável do application.yaml
     private String senhaAssinatura;
 
+    private static final String ISSUER = "API Microsservico.Autenticacao";
+
     // Chamado no AutenticacaoController
     public String gerarTokenJWT(Usuario usuario) { 
         try {
             var algoritmo = Algorithm.HMAC256(senhaAssinatura);
             return JWT.create()
-                .withIssuer("API Microsservico.Autenticacao")
+                .withIssuer(ISSUER)
                 .withSubject(usuario.getEmail())
                 .withClaim("id", usuario.getId()) // (String que identifica o nome da propriedade, informação que se deseja armazenar)
                 .withExpiresAt(dataExpiracao())
@@ -38,7 +40,7 @@ public class TokenService {
         try {
             var algoritmo = Algorithm.HMAC256(senhaAssinatura);
             return JWT.require(algoritmo)
-                            .withIssuer("API Microsservico.Autenticacao") // Verificar os dados da variável "issuer" do token
+                            .withIssuer(ISSUER) // Verificar os dados da variável "issuer" do token
                             .build() // pegar o verificador de token (coisa do spring)
                             .verify(tokenJWT) // verificar se está válido
                             .getSubject(); // pegar o email de quem gerou o token

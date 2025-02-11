@@ -27,7 +27,7 @@ public class AutenticacaoController {
     public ResponseEntity<TokenDto> login(@RequestBody LoginDTO loginDto) {
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.senha());
 
-        Authentication autenticacao = authManager.authenticate(authToken);
+        Authentication autenticacao = authManager.authenticate(authToken); // vai usar o BCrypt, pois foi configurado SecurityConfig.java
 
         String tokenJWT = tokenService.gerarTokenJWT((Usuario) autenticacao.getPrincipal());
 
