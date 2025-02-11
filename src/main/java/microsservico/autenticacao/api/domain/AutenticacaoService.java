@@ -14,7 +14,8 @@ public class AutenticacaoService implements UserDetailsService {
     // Esse método é chamado (pelo próprio spring) sempre que um usuario faz login no sistema
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return repo.findByEmail(email);
+        UserDetails user = repo.findByEmail(email);
+        return user;
     }
     
 }

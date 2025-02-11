@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,8 +16,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import microsservico.autenticacao.api.domain.AutenticacaoService;
-// import microsservico.autenticacao.api.domain.UsuarioRepository;
+import microsservico.autenticacao.api.domain.UsuarioRepository;
 
 // A implementação de Filtros dos servlets do java (sem relação com o spring) seria feita assim:
     // import jakarta.servlet.Filter;
@@ -31,7 +31,7 @@ public class SecurityFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private AutenticacaoService authService;
+    private UsuarioRepository usuarioRepo;
 
     // >>> PONTO INICIAL <<< do fluxo do sistema quando recebe uma requisição http
     // Método que o spring vai chamar quando o filtro for executado, que é quando chegar uma requisição para o servidor
@@ -39,7 +39,6 @@ public class SecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
-        System.out.println(authHeader);
         // requisições para a rota de login não precisam do header        
         if (authHeader != null) {
             String tokenJWT = authHeader.replace("Bearer ", "").trim();
@@ -48,7 +47,9 @@ public class SecurityFilter extends OncePerRequestFilter {
             System.out.println(tokenJWT);
             System.out.println(email);
 
-            UserDetails usuario = authService.loadUserByUsername(email);
+            UserDetails usuario = usuarioRepo.findByEmail(email);
+            if (usuario == null) {throw new UsernameNotFoundException("Usuário foi excluido depois de gerar o token.");}
+            System.out.println(usuario);
             Authentication authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
 
             // Chegando aqui, significa O token está válido, ou seja, é de alguém autenticado no sistema
@@ -64,6 +65,6 @@ public class SecurityFilter extends OncePerRequestFilter {
         // pode ou não continuar com a requisição (a única possível seria a de login)
 
         filterChain.doFilter(request, response); // Chamar o próximo filtro, ou seguir para o controller caso seja o último filtro.
-        // Próximo ponto: função do controller
+        // Próximo ponto: função do controller (se passar pelas configurações de segurança das rotas e roles no SecurityConfig.java)
     }
 }
