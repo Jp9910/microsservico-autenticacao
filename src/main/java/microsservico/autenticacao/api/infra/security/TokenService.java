@@ -28,6 +28,7 @@ public class TokenService {
                 .withIssuer(ISSUER)
                 .withSubject(usuario.getEmail())
                 .withClaim("id", usuario.getId()) // (String que identifica o nome da propriedade, informação que se deseja armazenar)
+                .withClaim("isAdmin",usuario.getIsAdmin())
                 .withExpiresAt(dataExpiracao())
                 .sign(algoritmo);
         } catch (JWTCreationException exception){

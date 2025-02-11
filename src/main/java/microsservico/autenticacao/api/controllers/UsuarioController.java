@@ -104,7 +104,6 @@ public class UsuarioController {
         return ResponseEntity.created(uri).body(dto);
     }
 
-    // TODO: Proteger o endpoint para evitar que qualquer um consiga cadastrar um admin
     // https://spring.io/guides/gs/securing-web
     // https://www.javaguides.net/2024/01/spring-boot-security-jwt-tutorial.html
     // https://www.javaguides.net/2018/10/user-registration-module-using-springboot-springmvc-springsecurity-hibernate5-thymeleaf-mysql.html
