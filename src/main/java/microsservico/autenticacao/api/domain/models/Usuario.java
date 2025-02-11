@@ -51,7 +51,12 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        String role = "ROLE_USER";
+        if (this.isAdmin) {
+            role = "ROLE_ADMIN";
+        }
+        System.out.println("Role:"+role);
+        return List.of(new SimpleGrantedAuthority(role));
     }
 
     @Override
@@ -63,4 +68,14 @@ public class Usuario implements UserDetails {
     public String getUsername() {
         return this.email;
     } 
+
+    /**
+	 * Indicates whether the user is enabled or disabled. A disabled user cannot be
+	 * authenticated.
+	 * @return <code>true</code> if the user is enabled, <code>false</code> otherwise
+	 */
+    @Override
+    public boolean isEnabled() {
+        return this.isAtivo;
+    }
 }

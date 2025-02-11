@@ -75,7 +75,6 @@ public class UsuarioController {
     @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<ReadUsuarioDTO> atualizarUsuario(@PathVariable Long id, @RequestBody UpdateUsuarioDTO updateUsuarioDto) {
-        System.out.println("teste put");
         Usuario user = repo.getReferenceById(id);
         if (updateUsuarioDto.nome() != null && !user.getNome().equals(updateUsuarioDto.nome())) {
             user.setNome(updateUsuarioDto.nome());
@@ -90,8 +89,12 @@ public class UsuarioController {
     
     @PostMapping("/cadastrar")
     @Transactional // Especificar que isso é uma transação (operação atômica)
-    public ResponseEntity<ReadUsuarioDTO> cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
-        //@valid indica que o campo precisa ser validado de acordo com as anotações na classe que está sendo validada
+    //@valid indica que o campo precisa ser validado de acordo com as anotações na classe que está sendo validada
+    public ResponseEntity<Object> cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
+        var jaExiste = repo.findByEmail(createUsuarioDto.email());
+        if (jaExiste != null) {
+            return ResponseEntity.badRequest().body("Este email já está associado a um usuário.");
+        }
         String digest = this.encryptPassword(createUsuarioDto.senha());
         Usuario user = new Usuario(createUsuarioDto, digest, false);
         repo.save(user);
@@ -107,7 +110,11 @@ public class UsuarioController {
     // https://www.javaguides.net/2018/10/user-registration-module-using-springboot-springmvc-springsecurity-hibernate5-thymeleaf-mysql.html
     @PostMapping("/cadastraradmin")
     @Transactional
-    public ResponseEntity<ReadUsuarioDTO> cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<Object> cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
+        var jaExiste = repo.findByEmail(createUsuarioDto.email());
+        if (jaExiste != null) {
+            return ResponseEntity.badRequest().body("Este email já está associado a um usuário.");
+        }
         String digest = this.encryptPassword(createUsuarioDto.senha());
         Usuario user = new Usuario(createUsuarioDto, digest, true);
         repo.save(user);
@@ -128,7 +135,6 @@ public class UsuarioController {
 
     private String encryptPassword(String senha) {
         String digest = this.encoder.encode(senha);
-        System.out.println("hash: ".concat(digest));
         return digest;
     }
 
