@@ -1,5 +1,6 @@
 package microsservico.autenticacao.api.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
@@ -70,6 +72,17 @@ public class UsuarioController {
         Usuario user = repo.getReferenceById(id);
         ReadUsuarioDTO userDto = new ReadUsuarioDTO(user);
         return ResponseEntity.ok(userDto);
+    }
+
+    @GetMapping("/buscapornome")
+    public ResponseEntity<Page<ReadUsuarioDTO>> getUsuariosPorNome(@RequestParam String nome, @PageableDefault(size = 10, sort = {"isAdmin"}, direction = Direction.DESC) Pageable paginacao) {
+        // Criar um objeto de página manualmente:
+        // Pageable firstPageWithTwoElements = PageRequest.of(0, 2);
+        // Pageable secondPageWithFiveElements = PageRequest.of(1, 5);
+        // https://www.baeldung.com/spring-data-jpa-pagination-sorting
+
+        Page<ReadUsuarioDTO> pagina = repo.findByNomeContainingIgnoreCase(paginacao, nome).map(ReadUsuarioDTO::new);
+        return ResponseEntity.ok(pagina);
     }
 
     @PutMapping("/{id}")

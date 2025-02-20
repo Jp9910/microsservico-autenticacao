@@ -1,4 +1,4 @@
-name: microsservico-autenticacao
+name: ms-auth
 # https://stackoverflow.com/questions/71855294/best-practices-for-storing-passwords-when-using-spring-boot
 services:
   api-autenticacao:
