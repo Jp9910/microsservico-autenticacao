@@ -41,6 +41,7 @@ public class DBConfig {
 		System.out.println(env.getProperty("spring.datasource.driver-class-name"));
 		System.out.println("\n\n\n\n");
 
+        // https://www.baeldung.com/spring-boot-configure-data-source-programmatic
         DataSourceBuilder<?> dataSourceBuilder = DataSourceBuilder.create();
         dataSourceBuilder.url(this.url);
         dataSourceBuilder.username(this.username);
