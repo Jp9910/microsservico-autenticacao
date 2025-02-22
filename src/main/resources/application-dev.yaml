@@ -6,9 +6,12 @@ spring:
   datasource:
     username: ${SPRING_DATASOURCE_USERNAME:postgres}
     password: ${SPRING_DATASOURCE_PASSWORD:senha}
-    url: jdbc:postgresql://${SPRING_DATASOURCE_URL:localhost:5432}/autenticacao
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/autenticacao}
   jpa:
     show-sql: true
     properties:
       hibernate:
         formatSql: true
+api:
+  security:
+    senha-assinatura-token: ${SENHA_ASSINATURA_JWT:senha123}

@@ -5,13 +5,13 @@ services:
     image: api-autenticacao-dev
     build:
       dockerfile: ./Dockerfile.dev
+    env_file:
+      - .env
     environment:
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: "/run/secrets/senha-postgres"
-      SPRING_DATASOURCE_URL: "postgres-autenticacao:5432"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-autenticacao:5432/autenticacao"
       SPRING_ACTIVE_PROFILE: dev
     ports:
-      - "8080:8080"
+      - "8081:8081"
     volumes:
       - ./src:/app/src
     depends_on:
@@ -29,7 +29,7 @@ services:
       - senha-postgres
     user: postgres
     environment:
-      POSTGRES_PASSWORD_FILE: "/run/secrets/senha-postgres"
+      POSTGRES_PASSWORD_FILE: /run/secrets/senha-postgres
       POSTGRES_DB: "autenticacao"
     healthcheck:
       test: ["CMD", "pg_isready"]
@@ -40,7 +40,7 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     ports:
-      - "8081:80"
+      - "8082:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: jops40@hotmail.com
       PGADMIN_DEFAULT_PASSWORD: senha
@@ -52,4 +52,4 @@ volumes:
 
 secrets:
   senha-postgres:
-    file: ./senhapostgres.txt
+    file: ./.senhapostgres.txt

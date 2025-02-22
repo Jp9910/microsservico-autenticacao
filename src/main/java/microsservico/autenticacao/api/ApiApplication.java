@@ -1,9 +1,12 @@
 package microsservico.autenticacao.api;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 // import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 // import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Bean;
+import microsservico.autenticacao.api.domain.UsuarioRepository;
 
 /*
 @SpringBootApplication is a convenience annotation that adds all of the following:
@@ -19,6 +22,16 @@ public class ApiApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ApiApplication.class, args);
 	}
+
+	@Bean
+    public CommandLineRunner run(UsuarioRepository userRepository) throws Exception {
+        return (String[] args) -> {
+            // Usuario user1 = new Usuario(new CreateUsuarioDTO("teste@email.com","senha","nome"),"senha",false);
+			System.out.println("Testando conexão...");
+            userRepository.findAll().forEach(user -> System.out.println(user));
+			System.out.println("Conexão ok...");
+        };
+    }
 	// Ler sobre beans no spring: https://www.baeldung.com/spring-bean
 	
 	// O projeto já tem o servidor de aplicação Tomcat como dependência - herdada das dependências do spring boot (tag parent no pom.xml)

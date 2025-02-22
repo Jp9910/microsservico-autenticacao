@@ -4,15 +4,16 @@ WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 COPY src ./src
-# RUN ./mvnw dependency:go-offline
-RUN ./mvnw clean package
+RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 WORKDIR /app
 COPY --from=build /app/target .
+# ENV: As variaveis de ambiente vão ser passadas pelo compose, até pq de qualquer jeito precisa do BD rodando pra funcionar
 ENTRYPOINT [ "java", "-jar", "api-0.0.1-SNAPSHOT.jar"]
+# ENTRYPOINT [ "java", "-jar", "api-0.0.1-SNAPSHOT.jar", "--spring.profiles.active=prod"]
 
 
 # Refs: 

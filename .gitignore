@@ -1,4 +1,6 @@
-senhapostgres.txt
+# Environment
+.env
+.senhapostgres.txt
 
 ### Auto-generated
 HELP.md

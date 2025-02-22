@@ -1,8 +1,11 @@
 # Microsserviço de autenticação
 
-Necessário ter o arquivo `senhapostgres.txt` contendo a senha do banco de dados na pasta raiz do projeto.
+## Iniciar o serviço com Docker
+Iniciar o serviço em desenvolvimento em containers (inicia todos os serviços necessários):
+1. Criar arquivos de ambiente 
+- `.senhapostgres.txt`;
+- `.env`, de acordo com o .env.example
 
-Configurar o perfil ativo da aplicação no application.yaml ou passando a variável de ambiente SPRING_ACTIVE_PROFILE (no containe ou localmente)
+2. (Opcional) Configurar o perfil ativo da aplicação no application.yaml ou passando a variável de ambiente SPRING_ACTIVE_PROFILE (no container ou localmente)
 
-Dev:
-> docker-compose up
+3. Executar `docker-compose up --build`

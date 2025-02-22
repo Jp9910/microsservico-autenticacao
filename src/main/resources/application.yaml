@@ -1,12 +1,11 @@
+# ${VARIAVEL} é uma variável de ambiente que pode ser passada para a aplicação no momento da execução
 spring:
   profiles:
     active: ${SPRING_ACTIVE_PROFILE:dev}
 server:
+  port: 8081
   error:
     include-stacktrace: never
-api:
-  security:
-    senha-assinatura-token: ${SENHA_ASSINATURA_JWT:senha123}
 
 # O application.yaml é sempre carregado primeiro, e em seguida o application-{perfil}.yaml do perfil que está sendo executado,
 # com as variaveis do perfil sobrescrevendo as do application.yaml

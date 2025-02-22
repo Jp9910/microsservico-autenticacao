@@ -10,3 +10,6 @@ spring:
     url: jdbc:postgresql://${SPRING_DATASOURCE_URL}/autenticacao
   jpa:
     show-sql: true
+api:
+  security:
+    senha-assinatura-token: ${SENHA_ASSINATURA_JWT}
