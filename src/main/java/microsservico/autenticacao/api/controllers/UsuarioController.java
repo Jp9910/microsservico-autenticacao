@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.net.URI;
+import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -106,7 +107,9 @@ public class UsuarioController {
     public ResponseEntity<Object> cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
         var jaExiste = repo.findByEmail(createUsuarioDto.email());
         if (jaExiste != null) {
-            return ResponseEntity.badRequest().body("Este email já está associado a um usuário.");
+            HashMap<String, String> resp = new HashMap<>();
+            resp.put("mensagem", "Este email já está associado a um usuário.");
+            return ResponseEntity.badRequest().body(resp);
         }
         String digest = this.encryptPassword(createUsuarioDto.senha());
         Usuario user = new Usuario(createUsuarioDto, digest, false);
@@ -125,6 +128,8 @@ public class UsuarioController {
     public ResponseEntity<Object> cadastrarAdmin(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
         var jaExiste = repo.findByEmail(createUsuarioDto.email());
         if (jaExiste != null) {
+            HashMap<String, String> resp = new HashMap<>();
+            resp.put("mensagem", "Este email já está associado a um usuário.");
             return ResponseEntity.badRequest().body("Este email já está associado a um usuário.");
         }
         String digest = this.encryptPassword(createUsuarioDto.senha());
