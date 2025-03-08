@@ -20,7 +20,6 @@ services:
   
   postgres-autenticacao:
     image: postgres:17
-    restart: always
     volumes:
       - postgresauth-data:/var/lib/postgresql/data
     ports:

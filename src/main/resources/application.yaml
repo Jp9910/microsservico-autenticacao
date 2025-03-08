@@ -2,10 +2,35 @@
 spring:
   profiles:
     active: ${SPRING_ACTIVE_PROFILE:dev}
+
 server:
   port: 8081
   error:
     include-stacktrace: never
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    enable:
+      jvm: true # habilitar metricas da jvm
+    distribution:
+      sla:
+        http:
+          server:
+            requests: 50ms,100ms,200ms,300ms,500ms,1s
+    tags:
+      application: app-ms-auth # as métricas serão exibidas com a tag `app-ms-auth`, para diferenciar de outros apps que tenham essa mesma métrica
+  prometheus:
+    metrics:
+      export:
+        enabled: true # habilitar export das metricas para o prometheus
+
 
 # O application.yaml é sempre carregado primeiro, e em seguida o application-{perfil}.yaml do perfil que está sendo executado,
 # com as variaveis do perfil sobrescrevendo as do application.yaml
@@ -15,3 +40,11 @@ server:
 #
 # Configurações comuns:
 # https://docs.spring.io/spring-boot/appendix/application-properties/index.html
+
+
+
+
+# Monitoramento no spring com o Actuator:
+# https://docs.spring.io/spring-boot/docs/2.5.6/reference/html/actuator.html
+# Actuator endpoints let you monitor and interact with your application. Spring Boot includes a number of built-in endpoints and lets
+# you add your own. For example, the health endpoint provides basic application health information.
