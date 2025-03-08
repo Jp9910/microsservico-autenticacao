@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 5s
+scrape_configs:
+  # job de monitorar ele mesmo
+  - job_name: prometheus-auth
+    scrape_interval: 15s
+    scrape_timeout: 10s
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+    - targets:
+      - prometheus-auth:9090
+
+  # job de monitorar a api de autenticacao
+  - job_name: api-autenticacao
+    metrics_path: /actuator/prometheus
+    static_configs:
+    - targets:
+      - api-autenticacao:8081

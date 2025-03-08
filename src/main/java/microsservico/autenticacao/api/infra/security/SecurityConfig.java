@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers("/auth/login").permitAll(); // permitir qualquer requisição para login
                     req.requestMatchers("/usuarios/cadastrar").permitAll(); // permitir qualquer requisição para cadastrar não-admin
+                    req.requestMatchers("/actuator/**").permitAll(); //permitir qualquer requisição para o actuator. não deve ser acessível por fora da rede interna
                     // De resto, apenas admins podem visualizar e editar usuários
                     req.requestMatchers(HttpMethod.GET, "/usuarios").hasRole("ADMIN");
                     req.requestMatchers(HttpMethod.GET, "/usuarios/ativos").hasRole("ADMIN");
