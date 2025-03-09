@@ -45,7 +45,8 @@ public class AutenticacaoController {
     private record TokenDto (String token) {}
 
     // Métricas personalizadas de autenticações com sucesso ou falha
-    Counter authSuccesses;
+    // Tipos de métricas no prometheus: https://prometheus.io/docs/concepts/metric_types/#metric-types
+    Counter authSuccesses; // O counter é zerado quando a aplicação é reinicializada, mas o histórico dela permanece no prometheus_data
     Counter authFails;
     public AutenticacaoController(MeterRegistry registry_de_metricas) { // injetar o registry no controller
         authSuccesses = Counter.builder("auth_user_sucess")
