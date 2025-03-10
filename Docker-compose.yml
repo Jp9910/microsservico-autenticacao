@@ -73,6 +73,15 @@ services:
   #   depends_on:
   #     - api-autenticacao
 
+  grafana-auth:
+    image: grafana/grafana # https://grafana.com/docs/grafana/latest/setup-grafana/configure-docker/
+    volumes:
+      - ./grafana:/var/lib/grafana
+    ports:
+      - 9091:3000
+    depends_on:
+      - prometheus-auth
+
   simulacao-consumidor:
     build:
       context: ./simulacao_consumidor_api/
@@ -80,6 +89,7 @@ services:
     image: simulacao-consumidor
     depends_on:
       - api-autenticacao
+      - grafana-auth
 
 volumes:
   postgresauth-data:
