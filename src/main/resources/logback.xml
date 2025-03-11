@@ -1,0 +1,33 @@
+<configuration>
+
+    <!-- declarar uma variável no xml -->
+    <property name="CAMINHO_LOG" value="logs/api-auth.log"/>
+
+    <!-- Logs no console -->
+    <appender name="SAIDA_PADRAO" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logs no arquivo -->
+    <appender name="ARQUIVO" class="ch.qos.logback.core.FileAppender">
+        <file>${CAMINHO_LOG}</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Nível raiz de logging -->
+    <root level="DEBUG">
+        <appender-ref ref="SAIDA_PADRAO" />
+        <!-- <appender-ref ref="ARQUIVO" /> Em arquivo, nível de debug é verboso demais -->
+    </root>
+
+    <!-- Definir um outro nível de logging. O name é como vai aparecer no log: m.a.a.c.AutenticacaoController - <mensagem> -->
+    <logger level="info" name="microsservico.autenticacao.api.controllers.AutenticacaoController" additivity="false">
+        <appender-ref ref="ARQUIVO" />
+    </logger>
+
+</configuration>

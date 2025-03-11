@@ -33,8 +33,6 @@ public class AutenticacaoController {
     @PostMapping("/login") // rota /auth/login
     public ResponseEntity<TokenDto> login(@RequestBody LoginDTO loginDto) {
         log.info("Login requisitado");
-        log.info("ã");
-        log.info("✅");
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.senha());
         try {
             Authentication autenticacao = authManager.authenticate(authToken); // vai usar o BCrypt, pois foi configurado SecurityConfig.java
