@@ -7,6 +7,10 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
+
+# Dependencia para o loki4j
+RUN apk update && apk add --no-cache gcompat
+
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 WORKDIR /app

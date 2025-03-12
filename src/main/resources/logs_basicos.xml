@@ -1,8 +1,5 @@
 <configuration>
 
-    <!-- declarar uma variável no xml -->
-    <property name="CAMINHO_LOG" value="logs/api-auth.log"/>
-
     <!-- Logs no console -->
     <appender name="SAIDA_PADRAO" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

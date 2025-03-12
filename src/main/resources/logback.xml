@@ -1,18 +1,49 @@
 <configuration>
 
-    <contextName>production</contextName>
+    <!-- declarar uma variável no xml -->
+    <property name="CAMINHO_LOG" value="logs/api-auth.log"/>
 
-    <appender name="json-stdout" class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.contrib.json.classic.JsonLayout">
-            <jsonFormatter class="ch.qos.logback.contrib.jackson.JacksonJsonFormatter">
-                <prettyPrint>true</prettyPrint>
-            </jsonFormatter>
-            <timestampFormat>yyyy-MM-dd' 'HH:mm:ss.SSS</timestampFormat>
-        </layout>
+    <!-- Logs no console -->
+    <appender name="SAIDA_PADRAO" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- %logger{0} mostra apenas a classe. %M é o método da classe. -->
+            <!-- %rEx é o root exception, que é pra mostrar apenas a primeira exceção ocorrida da stack trace -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} %M - %msg %rEx{short} %n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- O Loki4J é responsável pelo stream de logs direto para o Grafana Loki, sem a necessidade do uso do Promtail para itermediar e tratar o log contido no stream. -->
+    <!-- Definir o endereço a partir de uma variável de ambiente ou valor padrão -->
+    <property name="URL_LOKI" value="${URL_LOKI:-http://localhost:9092}" />
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+        <http>
+            <url>${URL_LOKI}/loki/api/v1/push</url>
+        </http>
+        <format class="com.github.loki4j.logback.ProtobufEncoder">
+            <label>
+                <pattern>
+                    app = api-auth,
+                    host = ${HOSTNAME},
+                    level = %level,
+                    class = %logger{0},
+                    method = %M,
+                    thread = %thread
+                </pattern>
+                <structuredMetadataPattern>
+                    message = %msg,
+                    traceId = %mdc{traceId:-none}
+                </structuredMetadataPattern>
+            </label>
+            <message>
+                <pattern>timestamp=%d{HH:mm:ss.SSS} thread=%thread level=%level class=%logger{0} method=%M %rEx{short} %msg %n</pattern>
+            </message>
+            <sortByTime>true</sortByTime>
+        </format>
     </appender>
 
     <root level="info">
-        <appender-ref ref="json-stdout" />
+        <appender-ref ref="SAIDA_PADRAO"/>
+        <appender-ref ref="LOKI"/>
     </root>
 
 </configuration>

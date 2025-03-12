@@ -10,6 +10,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-autenticacao:5432/autenticacao"
       SPRING_ACTIVE_PROFILE: dev
+      URL_LOKI: http://loki-auth:3100
     ports:
       - "8081:8081"
     volumes:
@@ -86,6 +87,14 @@ services:
       - 9091:3000
     depends_on:
       - prometheus-auth
+
+  loki-auth:
+    image: grafana/loki
+    command:
+        - "-config.file=/etc/loki/local-config.yaml"
+        - "-print-config-stderr=true"
+    ports:
+        - "9092:3100"
 
   simulacao-consumidor:
     build:

@@ -91,6 +91,8 @@
 			<artifactId>java-jwt</artifactId>
 			<version>4.5.0</version>
 		</dependency>
+
+		<!-- Micrometer e Prometheus -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -99,7 +101,9 @@
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
+		<!--  -->
 
+		<!-- LOGBACK EM JSON -->
 		<dependency>
 			<groupId>ch.qos.logback.contrib</groupId>
 			<artifactId>logback-json-classic</artifactId>
@@ -114,6 +118,20 @@
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
+		<!--  -->
+
+		<!-- LOKI -->
+		<dependency>
+            <groupId>com.github.loki4j</groupId>
+            <artifactId>loki-logback-appender</artifactId>
+            <version>1.6.0</version>
+      	</dependency>
+        <dependency>
+			<groupId>com.github.loki4j</groupId>
+			<artifactId>loki-protobuf</artifactId>
+			<version>0.0.2_pb4.29.0</version>
+		</dependency>
+		<!--  -->
 
 	</dependencies>
 
