@@ -1,0 +1,6 @@
+# ignore all files, except !X
+
+*
+
+!.gitignore
+!dashboard-template*
