@@ -1,0 +1,54 @@
+<configuration>
+
+    <!-- declarar uma variável no xml -->
+    <property name="CAMINHO_LOG" value="logs/api-auth.log"/>
+
+    <!-- Logs no console -->
+    <appender name="SAIDA_PADRAO" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Logs no arquivo -->
+    <!-- (Não é recomendado armazenar logs em arquivos, especialmente em aplicações distribuidas ou que são implantadas em containers) -->
+    <appender name="ARQUIVO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${CAMINHO_LOG}</file>
+
+        <!-- Appendar ao arquivo, em vez de escrever por cima -->
+        <append>true</append>
+
+        <!-- Politica baseada em tamanho e tempo para armazenamento dos logs -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- Padrão do nome do arquivo de logs -->
+            <fileNamePattern>${CAMINHO_LOG}.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+
+            <!-- Ao chegar nesse tamanho, criará um novo arquivo compactado com o conteúdo do arquivo de log e o conteúdo do arquivo é apagado -->
+            <maxFileSize>10MB</maxFileSize>
+
+            <!-- Limite de tamanho para armazenamento -->
+            <totalSizeCap>200MB</totalSizeCap>
+
+            <!-- Quantidade de tempo, em meses, que o conteúdo será retido -->
+            <maxHistory>12</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Nível raiz de logging. Outros casos de logging só podem conter tipos de logs contidos no nível de log do root. -->
+    <!-- Então se o root tiver nível INFO, um outro caso de logging não pode ter nível DEBUG -->
+    <!-- Níveis: TRACE > DEBUG > INFO > WARN > ERROR -->
+    <root level="info">
+        <appender-ref ref="SAIDA_PADRAO" />
+        <!-- <appender-ref ref="ARQUIVO" /> -->
+    </root>
+
+    <!-- Definir um outro caso de logging. O name é como vai aparecer no log: m.a.a.c.AutenticacaoController - <mensagem> -->
+    <logger level="info" name="microsservico.autenticacao.api.controllers.AutenticacaoController" additivity="false">
+        <appender-ref ref="ARQUIVO" />
+    </logger>
+
+</configuration>

@@ -1,0 +1,23 @@
+<configuration>
+
+    <!-- declarar uma variável no xml -->
+    <property name="CAMINHO_LOG" value="logs/api-auth.log"/>
+
+    <!-- Logs no console -->
+    <appender name="SAIDA_PADRAO" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- %logger{0} mostra apenas a classe. %M é o método da classe. -->
+            <!-- %rEx é o root exception, que é pra mostrar apenas a primeira exceção ocorrida da stack trace -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} %M - %msg %rEx{short} %n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Nível raiz de logging. Outros casos de logging só podem conter tipos de logs contidos no nível de log do root. -->
+    <!-- Então se o root tiver nível INFO, nenhum log de DEBUG será emitido -->
+    <!-- Níveis: TRACE > DEBUG > INFO > WARN > ERROR -->
+    <!-- Quando é um log por falha do usuário, geralmente usa-se WARN. Quando é por falha do servidor, usa-se error. -->
+    <root level="info">
+        <appender-ref ref="SAIDA_PADRAO" />
+    </root>
+
+</configuration>
