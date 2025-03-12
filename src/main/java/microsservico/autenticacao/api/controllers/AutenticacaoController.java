@@ -41,7 +41,7 @@ public class AutenticacaoController {
             log.info("Login com sucesso");
             return ResponseEntity.ok(new TokenDto(tokenJWT));
         } catch (AuthenticationException e) {
-            log.info("Login com falha");
+            log.warn("Login com falha");
             authFails.increment(); // Incrementar métrica personalizada de autenticações com falha
             throw e; // o TratadorDeExceptions vai lidar com a exception. (Talvez seja melhor colocar a métrica de falha lá)
         }

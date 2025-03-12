@@ -10,8 +10,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 
+import lombok.extern.slf4j.Slf4j;
 import microsservico.autenticacao.api.domain.models.Usuario;
-
+@Slf4j
 @Service
 public class TokenService {
 
@@ -33,7 +34,8 @@ public class TokenService {
                 .withExpiresAt(dataExpiracao())
                 .sign(algoritmo);
         } catch (JWTCreationException exception){
-            throw new RuntimeException("erro ao gerrar token jwt", exception);
+            log.error("Erro ao gerar token JWT");
+            throw new JWTCreationException("Erro ao gerar token jwt", exception);
         }		
     }
 
@@ -47,7 +49,8 @@ public class TokenService {
                             .verify(tokenJWT) // verificar se está válido
                             .getSubject(); // pegar o email de quem gerou o token
         } catch (JWTVerificationException exception) {
-            throw new RuntimeException("Token JWT inválido ou expirado!");
+            log.warn("Token JWT inválido ou expirado");
+            throw new JWTVerificationException("Token JWT inválido ou expirado!");
         }
     }
 

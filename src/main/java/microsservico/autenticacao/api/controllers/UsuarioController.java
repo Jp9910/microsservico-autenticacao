@@ -5,12 +5,15 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.net.URI;
 import java.util.HashMap;
 
+import org.apache.logging.log4j.util.InternalException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
@@ -21,6 +24,7 @@ import org.springframework.data.web.config.EnableSpringDataWebSupport;
 import org.springframework.data.web.config.EnableSpringDataWebSupport.PageSerializationMode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.transaction.CannotCreateTransactionException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,7 +38,7 @@ import microsservico.autenticacao.api.domain.models.Usuario;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/usuarios")
 @EnableSpringDataWebSupport(pageSerializationMode = PageSerializationMode.VIA_DTO)
@@ -70,8 +74,11 @@ public class UsuarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ReadUsuarioDTO> getUsuarioId(@PathVariable Long id) {
-        Usuario user = repo.getReferenceById(id);
+        log.info("Buscando usuário por id");
+        Usuario user = repo.getReferenceById(id); // caso não ache pelo id, isso já lança exceção e já é tratada e loggada 
+        System.out.println(user);
         ReadUsuarioDTO userDto = new ReadUsuarioDTO(user);
+        log.info("Usuário encontrado pelo id");
         return ResponseEntity.ok(userDto);
     }
 
@@ -105,19 +112,29 @@ public class UsuarioController {
     @Transactional // Especificar que isso é uma transação (operação atômica)
     //@valid indica que o campo precisa ser validado de acordo com as anotações na classe que está sendo validada
     public ResponseEntity<Object> cadastrar(@RequestBody @Valid CreateUsuarioDTO createUsuarioDto, UriComponentsBuilder uriBuilder) {
-        var jaExiste = repo.findByEmail(createUsuarioDto.email());
-        if (jaExiste != null) {
-            HashMap<String, String> resp = new HashMap<>();
-            resp.put("mensagem", "Este email já está associado a um usuário.");
-            return ResponseEntity.badRequest().body(resp);
-        }
-        String digest = this.encryptPassword(createUsuarioDto.senha());
-        Usuario user = new Usuario(createUsuarioDto, digest, false);
-        repo.save(user);
+        try{
+            log.info("Requisição de cadastro de usuário recebida");
+            var jaExiste = repo.findByEmail(createUsuarioDto.email());
+            if (jaExiste != null) {
+                HashMap<String, String> resp = new HashMap<>();
+                resp.put("mensagem", "Este email já está associado a um usuário.");
+                log.warn("\t Novo cadastro não efetuado. Email recebido para cadastro já está associado a um usuário.");
+                return ResponseEntity.badRequest().body(resp);
+            }
+            String digest = this.encryptPassword(createUsuarioDto.senha());
+            Usuario user = new Usuario(createUsuarioDto, digest, false);
+            repo.save(user);
+    
+            var uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(user.getId()).toUri();
+            ReadUsuarioDTO dto = new ReadUsuarioDTO(user);
 
-        var uri = uriBuilder.path("/usuarios/{id}").buildAndExpand(user.getId()).toUri();
-        ReadUsuarioDTO dto = new ReadUsuarioDTO(user);
-        return ResponseEntity.created(uri).body(dto);
+            log.info("Novo usuário cadastrado com sucesso");
+            return ResponseEntity.created(uri).body(dto);
+        } catch (CannotCreateTransactionException e) {
+            // falha de comunicação da aplicação com o database
+            log.error("Novo cadastro não efetuado. Erro de comunicação com o banco de dados.");
+            throw new InternalException("Erro momentâneo, por favor tente novamente mais tarde.");
+        }
     }
 
     // https://spring.io/guides/gs/securing-web
