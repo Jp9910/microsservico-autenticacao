@@ -52,10 +52,15 @@ services:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./prometheus/prometheus_data:/prometheus
     command:
+      # Arquivo de configuração do prometheus
       - '--config.file=/etc/prometheus/prometheus.yml'
+      # Onde vai ser armazenado a TimeSeriesDatabase
       - '--storage.tsdb.path=/prometheus'
+      # Bibliotecas que serão utilizadas pelo prometheus
       - '--web.console.libraries=/etc/prometheus/console_libraries'
+      # Bibliotecas que serão utilizadas pelo prometheus
       - '--web.console.templates=/etc/prometheus/consoles'
+      # Habilitar lifecycle pro armazenamento do prometheus
       - '--web.enable-lifecycle'
     ports:
       - 9090:9090

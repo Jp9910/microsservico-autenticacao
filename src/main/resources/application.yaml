@@ -2,6 +2,10 @@
 spring:
   profiles:
     active: ${SPRING_ACTIVE_PROFILE:dev}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
 server:
   port: 8081
