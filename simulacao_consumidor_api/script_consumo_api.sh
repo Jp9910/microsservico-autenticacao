@@ -6,6 +6,7 @@
 # o container client-forum-api e subir a stack novamente para o rebuild.
 
 HOST='api-autenticacao:8081'
+# ARQUIVOS SH DEVEM TER `LF` COMO FIM DE LINHA
 
 while true
     do

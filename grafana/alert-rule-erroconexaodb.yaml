@@ -1,0 +1,62 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: evaluation-group
+      folder: alertas - api auth
+      interval: 1m
+      rules:
+        - uid: fefm9crw89p8gb
+          title: Alerta-ApiAuth-FalhaConexaoBD
+          condition: C
+          data:
+            - refId: A
+              queryType: instant
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: beflgxpwk9zi8e
+              model:
+                datasource:
+                    type: loki
+                    uid: beflgxpwk9zi8e
+                editorMode: code
+                expr: sum(count_over_time({app="api-auth",class="SqlExceptionHelper",level="ERROR",method="logExceptions"}[5m])) >= 3
+                instant: true
+                intervalMs: 1000
+                maxDataPoints: 43200
+                queryType: instant
+                refId: A
+            - refId: C
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 0
+                        type: gt
+                      operator:
+                        type: and
+                      query:
+                        params:
+                            - C
+                      reducer:
+                        params: []
+                        type: last
+                      type: query
+                datasource:
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: C
+                type: threshold
+          noDataState: NoData
+          execErrState: Error
+          for: 2m
+          annotations:
+            Dashboard: http://localhost:3000/goto/dyg8qShNR?orgId=1
+            description: Alerta de falha de conexão com banco de dados na API de autenticação
+          isPaused: false
+          notification_settings:
+            receiver: Meu email

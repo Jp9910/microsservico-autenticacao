@@ -6,6 +6,7 @@ COPY ./script_consumo_api.sh /scripts/script_consumo_api.sh
 
 RUN apt update && \
         apt install curl -y && \
+        apt install jq -y && \
         chmod +x /scripts/script_consumo_api.sh
 
 ENTRYPOINT ["/scripts/script_consumo_api.sh"]

@@ -4,3 +4,4 @@
 
 !.gitignore
 !dashboard-template*
+!alert-rule*
