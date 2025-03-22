@@ -16,6 +16,10 @@ public class CorsFilterConfig {
         // config.setAllowCredentials(true); // não é necessário. mas tmb n sei oq faz exatamente
         config.addAllowedOrigin("http://localhost:5173");
         config.addAllowedOrigin("http://localhost:4200");
+        config.addAllowedOrigin("http://localhost:80");
+        config.addAllowedOrigin("http://gateway:80");
+        config.addAllowedOrigin("http://192.168.49.1:5173"); // ip da máquina virtual (para testes, apagar depois)
+        config.addAllowedOrigin("http://192.168.49.1:80");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);

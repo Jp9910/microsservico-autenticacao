@@ -1,5 +1,7 @@
 # ${VARIAVEL} é uma variável de ambiente que pode ser passada para a aplicação no momento da execução
 spring:
+  application:
+    name: api-autenticacao
   profiles:
     active: ${SPRING_ACTIVE_PROFILE:dev}
   jpa:

@@ -7,6 +7,8 @@
 
 HOST='api-autenticacao:8081'
 # ARQUIVOS SH DEVEM TER `LF` COMO FIM DE LINHA
+# curl --data '{"email":"admin@email.com","senha":"rootadmin"}' --header "Content-Type:application/json" --request POST http://api-autenticacao:8081/auth/login
+# token=$(curl --data '{"email":"admin@email.com","senha":"rootadmin"}' --header "Content-Type:application/json" --request POST http://api-autenticacao:8081/auth/login | jq -r '.token')
 
 while true
     do
@@ -14,39 +16,38 @@ while true
 	NUMB=`expr $RANDOM % 100 + 1`
 	#TEMP=`expr 1 + $(awk -v seed="$RANDOM" 'BEGIN { srand(seed); printf("%.4f\n", rand()) }')`
 
-	# se for <=55, faz um GET para /topicos
+	# se for <=55, faz um GET para rota acessível por qualquer um
 	if [ $NUMB -le 55 ]; then
 		echo 1
-	    curl --output /dev/null http://${HOST}/actuator
+	    curl --output /dev/null http://${HOST}/actuator # --output /dev/null para não imprimir o retorno no console
 
-	# se for >=56 e <=85, faz um POST para /auth/login com credenciais de usuário comum
+	# se for >=56 e <=85, faz um GET para uma rota só acessível por admins
     elif [ $NUMB -ge 56 ] && [ $NUMB -le 85 ] ; then
 		echo 2
-	    curl --output /dev/null --data '{"email":"12@teste.com","senha":"senha123"}' \
-		 --header "Content-Type:application/json" \
-		 --request POST http://${HOST}/auth/login
+	    curl --header "Authorization:$token" http://${HOST}/usuarios
 
-	# se for >=86 e <=95, faz uma autenticação de admin com sucesso
+	# se for >=86 e <=95, faz uma autenticação de admin com sucesso e salva o token na variavel $token
     elif [ $NUMB -ge 86 ] && [ $NUMB -le 95 ] ; then
 		echo 3
-		curl --output /dev/null --data '{"email":"admin@email.com","senha":"rootadmin"}' \
+		token=$(curl --data '{"email":"admin@email.com","senha":"rootadmin"}' \
 		 --header "Content-Type:application/json" \
-		 --request POST http://${HOST}/auth/login
+		 --request POST http://${HOST}/auth/login | jq -r '.token')
+		echo "token salvo: $token"
 
-	# entre 96 e 98, autenticação falha
+	# entre 96 e 98, autenticação falha e reseta o token
     elif [ $NUMB -ge 96 ] && [ $NUMB -le 98 ] ; then
 	    echo 4
-		curl --output /dev/null --data '{"email":"admin@email.com","senha":"senhaIncorreta"}' \
+		curl --data '{"email":"admin@email.com","senha":"senhaIncorreta"}' \
 	         --header "Content-Type:application/json" \
 	         --request POST http://${HOST}/auth
+		token=""
 
 	# 99 ou 100, faz um GET pra uma rota que não existe (vai retornar um erro 500, mas deveria ser um 404)
 	else
 		echo 5
-	    curl --output /dev/null http://${HOST}/rotaNaoExiste
+	    curl http://${HOST}/rotaNaoExiste
 	fi
 
 	#sleep $TEMP
 	sleep 0.75
 done
-

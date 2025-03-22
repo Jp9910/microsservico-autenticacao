@@ -1,7 +1,5 @@
 # Passar as variáveis de ambiente como variáveis de ambiente no container
 spring:
-  application:
-    name: api
   flyway:
     locations: classpath:db/migrations/
   datasource:
