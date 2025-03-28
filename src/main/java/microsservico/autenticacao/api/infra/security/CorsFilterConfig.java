@@ -19,7 +19,9 @@ public class CorsFilterConfig {
         config.addAllowedOrigin("http://localhost:80");
         config.addAllowedOrigin("http://gateway:80");
         config.addAllowedOrigin("http://192.168.49.1:5173"); // ip da máquina virtual (para testes, apagar depois)
+        config.addAllowedOrigin("http://192.168.49.1:4200"); // ip da máquina virtual (para testes, apagar depois)
         config.addAllowedOrigin("http://192.168.49.1:80");
+        config.addAllowedOrigin("*"); // >> REMOVER AO LANÇAR PUBLICAMENTE
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", config);
